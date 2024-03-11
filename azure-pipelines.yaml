@@ -1,0 +1,44 @@
+trigger:
+  - main
+
+pool:
+  name: Build server
+  vmImage: ubuntu-latest
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "18.x"
+    displayName: "Install Node.js"
+
+  - script: |
+      npm install
+    displayName: "npm install"
+
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "example-frontend.env"
+    displayName: "Downloading the .env file"
+
+  - bash: |
+      mv $(Agent.TempDirectory)/example-frontend.env $(Agent.TempDirectory)/.env
+    displayName: "Rename env file"
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: "$(Agent.TempDirectory)"
+      contents: "**/*.env"
+      targetFolder: "$(Build.SourcesDirectory)"
+      cleanTargetFolder: false
+    displayName: "Copy the .env file"
+
+  - script: |
+      npm run build
+    displayName: "npm build"
+
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: build
+      targetPath: "$(System.DefaultWorkingDirectory)"
+      publishLocation: "pipeline"
+    displayName: "Publish artifact"

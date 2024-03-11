@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "Azure-Pipelines:3000",
+      "script": "npm",
+      "args": "start"
+    }
+  ]
+}
